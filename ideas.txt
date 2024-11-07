@@ -1,0 +1,11 @@
+Controlling a computer using  motion sensing
+
+Have a  mouse and gesture mode
+
+Toggle switch: switch between linux (arch, hyprland) and windows
+
+
+Gesture Mode:
+    Gesture for switching desktops (via keystroke injection) (left and right waving)
+
+
