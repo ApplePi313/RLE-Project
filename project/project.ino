@@ -70,36 +70,46 @@ struct Vector3f{
   }
 };
 
+class Gestures {
+  void (*rightSwipeHandler)();
+
+  void rightSwipeCheck(Vector3f accel) {
+    if (accel.j > 10) {
+      if (rightSwipeHandler != NULL)
+        rightSwipeHandler();
+    }
+  }
+
+  public:
+    void addRightSwipeHandler(void (function())) {
+      rightSwipeHandler = function;
+    }
+
+    void update(Vector3f accel) {
+      rightSwipeCheck(accel);
+    }
+};
+
 Vector3f accel;
+Gestures gestures;
 
 void setup() {
   // put your setup code here, to run once:
   CircuitPlayground.begin();
   Serial.begin(9600);
 
+  gestures.addRightSwipeHandler(&workspaceRight);
 }
 
 void loop() {
   accel = Vector3f(CircuitPlayground.motionX(), CircuitPlayground.motionY(), CircuitPlayground.motionZ());
 
   accel.print();
+
+  gestures.update(accel);
 }
 
-class Gestures {
-  int (*rightSwipeHandler)();
 
-  void update() {
-    rightSwipeCheck();
-  }
-
-
-  void rightSwipeCheck() {
-
-  }
-  void addRightSwipeHandler(uint* function) {
-    rightSwipeHandler = function;
-  }
-};
 
 void workspaceLeft() {
   Keyboard.press(KEY_LEFT_GUI);
