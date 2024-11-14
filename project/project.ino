@@ -1,3 +1,6 @@
+#include <Adafruit_CircuitPlayground.h>
+#include <Adafruit_Circuit_Playground.h>
+
 struct Vector3f{
   float i,j,k;
 
@@ -27,6 +30,17 @@ struct Vector3f{
     return Vector3f(i / c, j / c, k / c);
   }
 
+  void operator+=(Vector3f otherVec) {
+    i += otherVec.i; 
+    j += otherVec.j; 
+    k += otherVec.k;
+  }
+  void operator-=(Vector3f otherVec) {
+    i -= otherVec.i; 
+    j -= otherVec.j; 
+    k -= otherVec.k;
+  }
+
   float dot(Vector3f otherVec) {
     return i * otherVec.i + j * otherVec.j + k * otherVec.k;
   }
@@ -45,12 +59,19 @@ struct Vector3f{
   }
 };
 
+Vector3f accel;
+
 void setup() {
   // put your setup code here, to run once:
+  CircuitPlayground.begin();
+  Serial.begin(9600);
 
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  accel = Vector3f(CircuitPlayground.motionX(), CircuitPlayground.motionY(), CircuitPlayground.motionZ());
 
+  accel.print();
+
+  delay(100);
 }
