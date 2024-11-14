@@ -1,3 +1,14 @@
+#include <Keyboard.h>
+#include <KeyboardLayout.h>
+#include <Keyboard_da_DK.h>
+#include <Keyboard_de_DE.h>
+#include <Keyboard_es_ES.h>
+#include <Keyboard_fr_FR.h>
+#include <Keyboard_hu_HU.h>
+#include <Keyboard_it_IT.h>
+#include <Keyboard_pt_PT.h>
+#include <Keyboard_sv_SE.h>
+
 #include <Adafruit_CircuitPlayground.h>
 #include <Adafruit_Circuit_Playground.h>
 
@@ -72,6 +83,40 @@ void loop() {
   accel = Vector3f(CircuitPlayground.motionX(), CircuitPlayground.motionY(), CircuitPlayground.motionZ());
 
   accel.print();
+}
 
-  delay(100);
+class Gestures {
+  int (*rightSwipeHandler)();
+
+  void update() {
+    rightSwipeCheck();
+  }
+
+
+  void rightSwipeCheck() {
+
+  }
+  void addRightSwipeHandler(uint* function) {
+    rightSwipeHandler = function;
+  }
+};
+
+void workspaceLeft() {
+  Keyboard.press(KEY_LEFT_GUI);
+  Keyboard.press(KEY_LEFT_CTRL);
+  Keyboard.press(KEY_LEFT_ARROW);
+
+  Keyboard.release(KEY_LEFT_GUI);
+  Keyboard.release(KEY_LEFT_CTRL);
+  Keyboard.release(KEY_LEFT_ARROW);
+}
+
+void workspaceRight() {
+  Keyboard.press(KEY_LEFT_GUI);
+  Keyboard.press(KEY_LEFT_CTRL);
+  Keyboard.press(KEY_RIGHT_ARROW);
+
+  Keyboard.release(KEY_LEFT_GUI);
+  Keyboard.release(KEY_LEFT_CTRL);
+  Keyboard.release(KEY_RIGHT_ARROW);
 }
