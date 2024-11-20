@@ -72,7 +72,14 @@ struct Vector3f{
 
 class Gestures {
   void (*rightSwipeHandler)();
-
+  void (*leftSwipeHandler)();
+  
+  void leftSwipeCheck(Vector3f accel) {
+    if (accel.j > 10) {
+      if (rightSwipeHandler != NULL)
+        leftSwipeHandler();
+    }
+  }
   void rightSwipeCheck(Vector3f accel) {
     if (accel.j > 10) {
       if (rightSwipeHandler != NULL)
@@ -81,6 +88,9 @@ class Gestures {
   }
 
   public:
+    void addLeftSwipeHandler(void (function())) {
+      leftSwipeHandler = function;
+    }
     void addRightSwipeHandler(void (function())) {
       rightSwipeHandler = function;
     }
