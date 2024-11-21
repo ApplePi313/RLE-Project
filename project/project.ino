@@ -85,19 +85,9 @@ struct Vector3f{
 class Gestures {
   void (*rightSwipeHandler)();
   void (*leftSwipeHandler)();
-  
-  void leftSwipeCheck(Vector3f accel) {
-    if (accel.j > 10) {
-      if (rightSwipeHandler != NULL)
-        leftSwipeHandler();
-    }
-  }
-  void rightSwipeCheck(Vector3f accel) {
-    if (accel.j > 10) {
-      if (rightSwipeHandler != NULL)
-        rightSwipeHandler();
-    }
-  }
+
+  int rsProg = 0;
+  int lsProg = 0;
 
   public:
     void addLeftSwipeHandler(void (function())) {
@@ -108,7 +98,56 @@ class Gestures {
     }
 
     void update(Vector3f accel) {
-      rightSwipeCheck(accel);
+      if (rsProg != 0) { // check right swipe status
+        if (rsProg == 1) {
+          if (accel.i > 4) {
+            rsProg = 2;
+          }
+        } else if (rsProg == 2) {
+          if (accel.i < 0) {
+            rsProg++;
+          }
+        } else {
+          if (abs(accel.j) < 4 && abs(accel.i) < 4) {
+            rsProg = 0;
+          }
+        }
+      } else if (lsProg != 0) { // check left swipe status
+        if (lsProg == 1) {
+          if (accel.i < -4) {
+            lsProg++;
+          }
+        } else if (lsProg == 2) {
+          if (accel.i > 0) {
+            lsProg++;
+          }
+        } else {
+          if (abs(accel.j) < 4 && abs(accel.i) < 4) {
+            lsProg = 0;
+          }
+        }
+      } else { // check for a new swipe/wave
+        if (accel.j > 2) { // A swipe is occurring
+          if (accel.i < -5) {
+            if (rightSwipeHandler != NULL) {
+              rightSwipeHandler();
+            }
+            rsProg = 1;
+          } else if (accel.i > 5) {
+            if (leftSwipeHandler != NULL) {
+              leftSwipeHandler();
+            }
+            lsProg = 1;
+          }
+        }
+      }
+
+      Serial.println("rs: " + String(rsProg));
+      Serial.println("ls: " + String(lsProg));
+
+      // if (lsProg == 1) {
+      //   while (true) {}
+      // }
     }
 };
 
@@ -122,6 +161,7 @@ void setup() {
   Mouse.begin();
 
   gestures.addRightSwipeHandler(&workspaceRight);
+  gestures.addLeftSwipeHandler(&workspaceLeft);
 }
 
 void loop() {
@@ -132,6 +172,8 @@ void loop() {
   gestures.update(accel);
 
   // mouseLoop();
+
+  delay(50);
 }
 
 void mouseLoop() {
