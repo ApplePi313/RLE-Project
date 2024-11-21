@@ -24,7 +24,7 @@
 bool lastClickState = false;
 bool toggler = false;
 
-struct Vector3f{
+struct Vector3f {
   float i,j,k;
 
   Vector3f() {
@@ -153,6 +153,7 @@ class Gestures {
 
 Vector3f accel;
 Gestures gestures;
+bool mouseMode = false;
 
 void setup() {
   // put your setup code here, to run once:
@@ -169,11 +170,16 @@ void loop() {
 
   accel.print();
 
-  gestures.update(accel);
+  if (accel.k > 16) {
+    delay(300);
+    mouseMode = !mouseMode;
+  }
 
-  // mouseLoop();
-
-  delay(50);
+  if (mouseMode) {
+    mouseLoop();
+  } else {
+    gestures.update(accel);
+  }
 }
 
 void mouseLoop() {
