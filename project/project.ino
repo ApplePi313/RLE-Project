@@ -86,15 +86,27 @@ class Gestures {
   void (*rightSwipeHandler)();
   void (*leftSwipeHandler)();
 
-  int rsProg = 0;
-  int lsProg = 0;
+  void (*rightTiltHandler)();
+  void (*leftTiltHandler)();
+
+  long cooldownTime;
 
   public:
+    int rsProg = 0;
+    int lsProg = 0;
+
+    void addRightSwipeHandler(void (function())) {
+      rightSwipeHandler = function;
+    }
     void addLeftSwipeHandler(void (function())) {
       leftSwipeHandler = function;
     }
-    void addRightSwipeHandler(void (function())) {
-      rightSwipeHandler = function;
+    
+    void addRightTiltHandler(void (function())) {
+      rightTiltHandler = function;
+    }
+    void addLeftTiltHandler(void (function())) {
+      leftTiltHandler = function;
     }
 
     void update(Vector3f accel) {
@@ -126,16 +138,31 @@ class Gestures {
             lsProg = 0;
           }
         }
-      } else { // check for a new swipe/wave
-        if (accel.j > 2) { // A swipe is occurring
-          if (accel.i < -5) {
+      } else { // check for a new swipe/tilt
+        if (accel.k < 5) {
+          if (accel.i > 7) {
+            if (rightTiltHandler != NULL) {
+              rightTiltHandler();
+              delay(40);
+            }
+          } else if (accel.i < -7) {
+            if (leftTiltHandler != NULL) {
+              leftTiltHandler();
+              delay(40);
+            }
+          }
+        } else if (//abs(accel.j) > 5 && 
+            (millis() - cooldownTime) > 500) { // A swipe is occurring
+          if (accel.i < -12) {
             if (rightSwipeHandler != NULL) {
               rightSwipeHandler();
+              cooldownTime = millis();
             }
             rsProg = 1;
-          } else if (accel.i > 5) {
+          } else if (accel.i > 12) {
             if (leftSwipeHandler != NULL) {
               leftSwipeHandler();
+              cooldownTime = millis();
             }
             lsProg = 1;
           }
@@ -163,14 +190,18 @@ void setup() {
 
   gestures.addRightSwipeHandler(&workspaceRight);
   gestures.addLeftSwipeHandler(&workspaceLeft);
+
+  gestures.addRightTiltHandler(&scrollDown);
+  gestures.addLeftTiltHandler(&scrollUp);
 }
 
 void loop() {
   accel = Vector3f(CircuitPlayground.motionX(), CircuitPlayground.motionY(), CircuitPlayground.motionZ());
 
   accel.print();
-
-  if (accel.k > 16) {
+  
+  if (accel.k > 18 && gestures.rsProg == 0 && gestures.lsProg == 0
+      && abs(accel.i) < 7) {
     delay(300);
     mouseMode = !mouseMode;
   }
@@ -179,6 +210,9 @@ void loop() {
     mouseLoop();
   } else {
     gestures.update(accel);
+    for (int i = 0; i < 10; i++) {
+      CircuitPlayground.setPixelColor(i, 0x7700FF);
+    }
   }
 }
 
@@ -326,7 +360,6 @@ void workspaceLeft() {
   Keyboard.release(KEY_LEFT_CTRL);
   Keyboard.release(KEY_LEFT_ARROW);
 }
-
 void workspaceRight() {
   Keyboard.press(KEY_LEFT_GUI);
   Keyboard.press(KEY_LEFT_CTRL);
@@ -335,4 +368,13 @@ void workspaceRight() {
   Keyboard.release(KEY_LEFT_GUI);
   Keyboard.release(KEY_LEFT_CTRL);
   Keyboard.release(KEY_RIGHT_ARROW);
+}
+
+void scrollDown() {
+  Keyboard.press(KEY_DOWN_ARROW);
+  Keyboard.release(KEY_DOWN_ARROW);
+}
+void scrollUp() {
+  Keyboard.press(KEY_UP_ARROW);
+  Keyboard.release(KEY_UP_ARROW);
 }
